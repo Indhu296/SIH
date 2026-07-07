@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+{% block title %}Contact — FarmPortal{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="container">
+    <h1><i class="bi bi-envelope me-2"></i>Contact Us</h1>
+    <p>Get in touch with our support team or regional agricultural officers.</p>
+  </div>
+</div>
+
+<div class="container pb-5">
+  <div class="row g-4">
+
+    <!-- Contact Info -->
+    <div class="col-lg-4">
+      <div class="d-flex flex-column gap-3">
+        {% for item in [
+          ('bi-geo-alt-fill','#dcfce7','#15803d','Our Address','Ministry of Agriculture & Farmers Welfare, Krishi Bhavan, New Delhi – 110 001'),
+          ('bi-telephone-fill','#dbeafe','#1d4ed8','Phone / Helpline','Toll Free: 1800-XXX-FARM\nMon – Fri, 9 AM – 6 PM IST'),
+          ('bi-envelope-fill','#fef9c3','#a16207','Email','support@farmportal.gov.in\ninfo@farmportal.gov.in'),
+          ('bi-clock-fill','#f3e8ff','#7e22ce','Working Hours','Monday to Friday\n9:00 AM – 6:00 PM IST')
+        ] %}
+        <div class="farm-card p-4 d-flex align-items-start gap-3">
+          <div style="width:48px;height:48px;background:{{ item[1] }};border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <i class="bi {{ item[0] }}" style="color:{{ item[2] }};font-size:1.25rem;"></i>
+          </div>
+          <div>
+            <h6 style="font-weight:700;color:var(--green-dark);margin-bottom:.3rem;">{{ item[3] }}</h6>
+            <p style="font-size:.87rem;color:var(--text-muted);margin:0;white-space:pre-line;line-height:1.7;">{{ item[4] }}</p>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Contact Form -->
+    <div class="col-lg-8">
+      <div class="farm-card">
+        <div class="card-header-farm"><i class="bi bi-send-fill"></i> Send Us a Message</div>
+        <div class="card-body-farm">
+          <form method="POST" action="{{ url_for('contact') }}">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label-farm">Full Name *</label>
+                <input type="text" name="name" class="form-control-farm" required placeholder="Your full name"/>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label-farm">Email Address *</label>
+                <input type="email" name="email" class="form-control-farm" required placeholder="your@email.com"/>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label-farm">Phone Number</label>
+                <input type="tel" name="phone" class="form-control-farm" placeholder="+91 XXXXX XXXXX"/>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label-farm">Category *</label>
+                <select name="category" class="form-control-farm" required>
+                  <option value="">-- Select --</option>
+                  <option>Technical Support</option>
+                  <option>MRL Query</option>
+                  <option>AMU Compliance</option>
+                  <option>Registration Help</option>
+                  <option>General Enquiry</option>
+                </select>
+              </div>
+              <div class="col-12">
+                <label class="form-label-farm">Subject *</label>
+                <input type="text" name="subject" class="form-control-farm" required placeholder="Brief subject of your message"/>
+              </div>
+              <div class="col-12">
+                <label class="form-label-farm">Message *</label>
+                <textarea name="message" class="form-control-farm" rows="5" required
+                          placeholder="Describe your query or issue in detail…"></textarea>
+              </div>
+            </div>
+            <div class="mt-4">
+              <button type="submit" class="btn-farm" style="padding:.65rem 2rem;">
+                <i class="bi bi-send-fill"></i> Send Message
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAQ Section -->
+  <div class="mt-5">
+    <h2 class="section-title">Frequently Asked Questions</h2>
+    <div class="row g-3 mt-3">
+      {% for q, a in [
+        ('What is MRL?','Maximum Residue Limit (MRL) is the highest amount of pesticide or veterinary drug residue legally permitted in food products.'),
+        ('What is AMU?','Antimicrobial Usage (AMU) refers to the monitoring and recording of antibiotic medicines given to livestock.'),
+        ('Who can use this portal?','Registered farmers, licensed veterinarians, farm managers, and government regulatory officers.'),
+        ('How are MRL statuses computed?','Automatically — Safe (≤70% of limit), Warning (70–100%), Exceeded (>100%) based on detected values.'),
+        ('Is the data secure?','Yes. Role-based authentication ensures only authorised users access sensitive records.'),
+        ('How do I register?','Contact your nearest Agricultural Extension Officer or the helpline to get your account created.')
+      ] %}
+      <div class="col-md-6">
+        <div class="farm-card p-3">
+          <h6 style="font-weight:700;color:var(--green-dark);">
+            <i class="bi bi-question-circle-fill text-success me-2"></i>{{ q }}
+          </h6>
+          <p style="font-size:.87rem;color:var(--text-muted);margin:0;line-height:1.65;">{{ a }}</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

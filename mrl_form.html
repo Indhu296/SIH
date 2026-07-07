@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% block title %}{{ action }} MRL Record — FarmPortal{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="container">
+    <h1><i class="bi bi-activity me-2"></i>{{ action }} MRL Record</h1>
+    <p>{{ 'Record a new residue test result.' if action == 'Add' else 'Update residue test details.' }}</p>
+  </div>
+</div>
+
+<div class="container pb-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="farm-card">
+        <div class="card-header-farm"><i class="bi bi-clipboard2-pulse"></i> MRL Test Details</div>
+        <div class="card-body-farm">
+          <form method="POST">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label-farm">Select Livestock *</label>
+                <select name="livestock_id" class="form-control-farm" required>
+                  <option value="">-- Select Animal --</option>
+                  {% for l in livestock_list %}
+                  <option value="{{ l.id }}" {{ 'selected' if record and record.livestock_id == l.id }}>
+                    {{ l.tag_id }} — {{ l.animal_type }} ({{ l.breed }})
+                  </option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label-farm">Substance / Antibiotic *</label>
+                <input type="text" name="substance" class="form-control-farm" required
+                       placeholder="e.g. Oxytetracycline"
+                       value="{{ record.substance if record else '' }}"/>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label-farm">Detected Value (µg/kg) *</label>
+                <input type="number" name="detected_val" class="form-control-farm" required step="0.01" min="0"
+                       placeholder="e.g. 85.0"
+                       value="{{ record.detected_val if record else '' }}" id="detected"/>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label-farm">MRL Limit (µg/kg) *</label>
+                <input type="number" name="mrl_limit" class="form-control-farm" required step="0.01" min="0.01"
+                       placeholder="e.g. 100.0"
+                       value="{{ record.mrl_limit if record else '' }}" id="limit"/>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label-farm">Sample Date *</label>
+                <input type="date" name="sample_date" class="form-control-farm" required
+                       value="{{ record.sample_date if record else '' }}"/>
+              </div>
+
+              <!-- Live Status Preview -->
+              <div class="col-12">
+                <div id="statusPreview" style="display:none;padding:.85rem 1rem;border-radius:var(--radius-sm);font-weight:600;border:1px solid;margin-top:.25rem;">
+                  Computed Status: <span id="statusText"></span>
+                </div>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label-farm">Notes (optional)</label>
+                <textarea name="notes" class="form-control-farm" rows="3" placeholder="Additional notes about this test…">{{ record.notes if record else '' }}</textarea>
+              </div>
+            </div>
+            <div class="d-flex gap-3 mt-4">
+              <button type="submit" class="btn-farm">
+                <i class="bi bi-check-lg"></i> {{ action }} Record
+              </button>
+              <a href="{{ url_for('mrl') }}" class="btn-farm-outline">
+                <i class="bi bi-x-lg"></i> Cancel
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+/* Live MRL status preview */
+function updateStatus() {
+  const d = parseFloat(document.getElementById('detected').value) || 0;
+  const l = parseFloat(document.getElementById('limit').value)   || 0;
+  const box = document.getElementById('statusPreview');
+  const txt = document.getElementById('statusText');
+  if (!d || !l) { box.style.display = 'none'; return; }
+  const ratio = d / l;
+  let status, bg, border;
+  if (ratio <= 0.7)     { status = '✅ Safe';     bg = '#dcfce7'; border = '#86efac'; txt.style.color = '#15803d'; }
+  else if (ratio <= 1)  { status = '⚠️ Warning';  bg = '#fef9c3'; border = '#fde047'; txt.style.color = '#a16207'; }
+  else                  { status = '🚨 Exceeded'; bg = '#fee2e2'; border = '#fca5a5'; txt.style.color = '#dc2626'; }
+  txt.textContent = status + ` (${(ratio * 100).toFixed(1)}% of limit)`;
+  box.style.background = bg;
+  box.style.borderColor = border;
+  box.style.display = 'block';
+}
+document.getElementById('detected').addEventListener('input', updateStatus);
+document.getElementById('limit').addEventListener('input', updateStatus);
+</script>
+{% endblock %}

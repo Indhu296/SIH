@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% block title %}Livestock Management — FarmPortal{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="container">
+    <h1><i class="bi bi-flower2 me-2"></i>Livestock Management</h1>
+    <p>Register, monitor, and manage all livestock records on your farm.</p>
+  </div>
+</div>
+
+<div class="container pb-5">
+  <!-- Toolbar -->
+  <div class="farm-card mb-4">
+    <div class="card-body-farm">
+      <form method="GET" class="row g-3 align-items-end">
+        <div class="col-md-5">
+          <label class="form-label-farm">Search</label>
+          <div class="search-bar">
+            <i class="bi bi-search search-icon"></i>
+            <input type="text" name="search" class="form-control-farm" placeholder="Search by tag, farmer, breed…" value="{{ search }}"/>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label-farm">Animal Type</label>
+          <select name="type" class="form-control-farm">
+            <option value="">All Types</option>
+            {% for t in animal_types %}
+            <option value="{{ t }}" {{ 'selected' if filter_type == t }}>{{ t }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-2">
+          <button type="submit" class="btn-farm w-100" style="justify-content:center;">
+            <i class="bi bi-search"></i> Filter
+          </button>
+        </div>
+        <div class="col-md-2">
+          <a href="{{ url_for('add_livestock') }}" class="btn-farm w-100" style="justify-content:center;background:linear-gradient(135deg,#1a4731,#2d7a4f);">
+            <i class="bi bi-plus-lg"></i> Add New
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="farm-card">
+    <div class="card-header-farm">
+      <i class="bi bi-table"></i> Livestock Records
+      <span class="ms-auto" style="font-size:.82rem;opacity:.8;">{{ records|length }} record(s)</span>
+    </div>
+    <div class="card-body-farm p-0">
+      {% if records %}
+      <div class="table-responsive">
+        <table class="farm-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Tag ID</th>
+              <th>Animal</th>
+              <th>Breed</th>
+              <th>Age (Months)</th>
+              <th>Weight (kg)</th>
+              <th>Farmer</th>
+              <th>Location</th>
+              <th>Health</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in records %}
+            <tr>
+              <td>{{ loop.index }}</td>
+              <td><span style="font-family:monospace;font-weight:700;color:var(--green-dark);">{{ r.tag_id }}</span></td>
+              <td>
+                <span>
+                  {% if r.animal_type == 'Cattle' %}🐄
+                  {% elif r.animal_type == 'Poultry' %}🐔
+                  {% elif r.animal_type == 'Pig' %}🐷
+                  {% elif r.animal_type == 'Sheep' %}🐑
+                  {% elif r.animal_type == 'Goat' %}🐐
+                  {% else %}🐾{% endif %}
+                  {{ r.animal_type }}
+                </span>
+              </td>
+              <td>{{ r.breed }}</td>
+              <td>{{ r.age_months }}</td>
+              <td>{{ r.weight_kg }}</td>
+              <td>{{ r.farmer_name }}</td>
+              <td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ r.farm_location }}</td>
+              <td>
+                <span class="badge {{ 'badge-safe' if r.health_status == 'Healthy' else 'badge-warning' if r.health_status == 'Under Treatment' else 'badge-exceeded' }}" style="padding:.3rem .65rem;border-radius:6px;">
+                  {{ r.health_status }}
+                </span>
+              </td>
+              <td>
+                <div class="d-flex gap-1">
+                  <a href="{{ url_for('edit_livestock', id=r.id) }}" class="btn-sm-icon btn-edit" title="Edit"><i class="bi bi-pencil"></i></a>
+                  <form method="POST" action="{{ url_for('delete_livestock', id=r.id) }}" onsubmit="return confirm('Delete this livestock record?');" style="display:inline;">
+                    <button type="submit" class="btn-sm-icon btn-delete" title="Delete"><i class="bi bi-trash"></i></button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="text-center py-5" style="color:var(--text-muted);">
+        <i class="bi bi-flower2" style="font-size:3rem;opacity:.3;"></i>
+        <p class="mt-3">No livestock records found.<br><a href="{{ url_for('add_livestock') }}" class="text-green">Add your first animal</a></p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

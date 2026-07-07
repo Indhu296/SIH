@@ -1,0 +1,182 @@
+{% extends 'base.html' %}
+{% block title %}Home — Digital Farm Management Portal{% endblock %}
+
+{% block content %}
+
+<!-- ══ HERO ══════════════════════════════════════════════════════════════════ -->
+<section class="hero-section">
+  <div class="container py-5">
+    <div class="row align-items-center gy-5">
+      <!-- Text -->
+      <div class="col-lg-6 fade-in">
+        <span class="hero-badge"><i class="bi bi-award-fill"></i> Smart India Hackathon 2024</span>
+        <h1 class="hero-title">Digital Farm<br>Management Portal</h1>
+        <p class="hero-subtitle mt-3">
+          Monitor Maximum Residue Limits (MRL) and Antimicrobial Usage (AMU)
+          in livestock with real-time alerts, intelligent dashboards, and
+          comprehensive reporting — all in one platform.
+        </p>
+        <div class="d-flex flex-wrap gap-3 mt-4">
+          {% if session.get('user_id') %}
+            <a href="{{ url_for('dashboard') }}" class="btn-farm btn-lg">
+              <i class="bi bi-speedometer2"></i> Go to Dashboard
+            </a>
+          {% else %}
+            <a href="{{ url_for('login') }}" class="btn-farm btn-lg">
+              <i class="bi bi-box-arrow-in-right"></i> Get Started
+            </a>
+          {% endif %}
+          <a href="{{ url_for('about') }}" class="btn-farm-outline btn-lg" style="color:#fff;border-color:rgba(255,255,255,.5);">
+            <i class="bi bi-play-circle"></i> Learn More
+          </a>
+        </div>
+        <!-- Quick stats row -->
+        <div class="d-flex flex-wrap gap-4 mt-5">
+          <div style="color:#fff;">
+            <div style="font-size:1.8rem;font-weight:800;">{{ total_livestock }}+</div>
+            <div style="font-size:.82rem;opacity:.75;">Animals Monitored</div>
+          </div>
+          <div style="color:#fff;border-left:1px solid rgba(255,255,255,.3);padding-left:1.5rem;">
+            <div style="font-size:1.8rem;font-weight:800;color:#ffb347;">{{ exceeded_mrl }}</div>
+            <div style="font-size:.82rem;opacity:.75;">MRL Alerts</div>
+          </div>
+          <div style="color:#fff;border-left:1px solid rgba(255,255,255,.3);padding-left:1.5rem;">
+            <div style="font-size:1.8rem;font-weight:800;">{{ active_amu }}</div>
+            <div style="font-size:.82rem;opacity:.75;">Active Treatments</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Floating cards -->
+      <div class="col-lg-6">
+        <div class="d-flex flex-column gap-3 ps-lg-4">
+          <div class="hero-float-card">
+            <div class="card-icon" style="background:#dcfce7;"><span>🐄</span></div>
+            <div>
+              <div style="font-weight:700;color:#1a4731;font-size:.95rem;">Livestock Tracking</div>
+              <div style="font-size:.8rem;color:#5a7264;">Real-time health monitoring</div>
+            </div>
+          </div>
+          <div class="hero-float-card ms-lg-5">
+            <div class="card-icon" style="background:#fee2e2;"><span>⚠️</span></div>
+            <div>
+              <div style="font-weight:700;color:#1a4731;font-size:.95rem;">MRL Alert System</div>
+              <div style="font-size:.8rem;color:#5a7264;">Instant notifications on limits</div>
+            </div>
+          </div>
+          <div class="hero-float-card ms-lg-3">
+            <div class="card-icon" style="background:#dbeafe;"><span>💊</span></div>
+            <div>
+              <div style="font-weight:700;color:#1a4731;font-size:.95rem;">AMU Compliance</div>
+              <div style="font-size:.8rem;color:#5a7264;">Track antibiotic withdrawal</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FEATURES ══════════════════════════════════════════════════════════════ -->
+<section class="py-6" style="padding:5rem 0;">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 class="section-title">Why FarmPortal?</h2>
+      <p class="section-subtitle mx-auto mt-3">
+        Comprehensive tools to ensure food safety and compliance with national and
+        international agricultural standards.
+      </p>
+    </div>
+    <div class="row g-4 animate-stagger">
+      <div class="col-md-4 col-sm-6">
+        <div class="feature-card">
+          <div class="feat-icon">🐄</div>
+          <h5>Livestock Management</h5>
+          <p>Add, edit, and track livestock records including breed, age, weight, and health status with ease.</p>
+        </div>
+      </div>
+      <div class="col-md-4 col-sm-6">
+        <div class="feature-card">
+          <div class="feat-icon">🔬</div>
+          <h5>MRL Monitoring</h5>
+          <p>Detect antibiotic residues in livestock products and compare against Codex and FSSAI MRL limits.</p>
+        </div>
+      </div>
+      <div class="col-md-4 col-sm-6">
+        <div class="feature-card">
+          <div class="feat-icon">💊</div>
+          <h5>AMU Tracking</h5>
+          <p>Record antimicrobial prescriptions, dosages, and enforce withdrawal periods for food safety.</p>
+        </div>
+      </div>
+      <div class="col-md-4 col-sm-6">
+        <div class="feature-card">
+          <div class="feat-icon">📊</div>
+          <h5>Smart Dashboard</h5>
+          <p>Visual charts and statistics provide instant insights into farm health and compliance status.</p>
+        </div>
+      </div>
+      <div class="col-md-4 col-sm-6">
+        <div class="feature-card">
+          <div class="feat-icon">🔔</div>
+          <h5>Real-time Alerts</h5>
+          <p>Get immediate notifications when MRL exceeds safe limits to take corrective actions fast.</p>
+        </div>
+      </div>
+      <div class="col-md-4 col-sm-6">
+        <div class="feature-card">
+          <div class="feat-icon">📋</div>
+          <h5>Detailed Reports</h5>
+          <p>Generate comprehensive reports for regulatory submission, audits, and farm management decisions.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ HOW IT WORKS ══════════════════════════════════════════════════════════ -->
+<section style="background:var(--green-pale);padding:5rem 0;">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 class="section-title">How It Works</h2>
+    </div>
+    <div class="row g-4 text-center">
+      {% for step in [
+        ('1','Register & Login','bi-person-plus-fill','Create your farm account and log in with your credentials.'),
+        ('2','Add Livestock','bi-flower2','Register your animals with their health and identification details.'),
+        ('3','Record AMU','bi-capsule','Log every antimicrobial treatment with dosage and withdrawal days.'),
+        ('4','Monitor MRL','bi-activity','Submit residue test results and monitor compliance automatically.')
+      ] %}
+      <div class="col-md-3 col-sm-6">
+        <div style="background:#fff;border-radius:var(--radius);padding:2rem 1.5rem;height:100%;box-shadow:var(--shadow-sm);border:1px solid var(--border-light);">
+          <div style="width:56px;height:56px;background:var(--green-primary);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto .75rem;color:#fff;font-size:1.3rem;font-weight:800;">{{ step[0] }}</div>
+          <i class="bi {{ step[2] }}" style="font-size:2rem;color:var(--green-mid);display:block;margin-bottom:.75rem;"></i>
+          <h6 style="font-weight:700;color:var(--green-dark);">{{ step[1] }}</h6>
+          <p style="font-size:.85rem;color:var(--text-muted);margin:0;">{{ step[3] }}</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ══ CTA ════════════════════════════════════════════════════════════════════ -->
+<section style="padding:5rem 0;background:linear-gradient(135deg,var(--green-dark),var(--green-primary));">
+  <div class="container text-center">
+    <h2 style="color:#fff;font-size:2.2rem;font-weight:800;margin-bottom:.75rem;">Ready to Protect Your Farm?</h2>
+    <p style="color:rgba(255,255,255,.8);font-size:1.05rem;max-width:500px;margin:0 auto 2rem;">
+      Join thousands of farmers ensuring food safety and regulatory compliance.
+    </p>
+    {% if not session.get('user_id') %}
+    <a href="{{ url_for('login') }}" class="btn-farm" style="font-size:1rem;padding:.75rem 2rem;">
+      <i class="bi bi-box-arrow-in-right"></i> Login Now — It's Free
+    </a>
+    {% else %}
+    <a href="{{ url_for('dashboard') }}" class="btn-farm" style="font-size:1rem;padding:.75rem 2rem;">
+      <i class="bi bi-speedometer2"></i> Go to Dashboard
+    </a>
+    {% endif %}
+  </div>
+</section>
+
+{% endblock %}

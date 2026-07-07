@@ -1,0 +1,207 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard — FarmPortal{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="container">
+    <div class="d-flex align-items-center gap-3">
+      <div style="width:52px;height:52px;background:rgba(255,255,255,.18);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;">📊</div>
+      <div>
+        <h1>Dashboard</h1>
+        <p>Welcome back, <strong>{{ session.get('username') }}</strong> — Here's your farm overview</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container pb-5">
+
+  <!-- ── MRL Alert Banner ───────────────────────────────────── -->
+  {% if alerts %}
+  <div class="mb-4">
+    <div style="background:#fff;border-radius:var(--radius);padding:1.25rem 1.5rem;box-shadow:var(--shadow-sm);border:1px solid #fca5a5;">
+      <div class="d-flex align-items-center gap-2 mb-3">
+        <i class="bi bi-exclamation-triangle-fill text-danger fs-5"></i>
+        <h6 class="mb-0 fw-bold text-danger">⚠️ Active MRL Exceeded Alerts ({{ alerts|length }})</h6>
+      </div>
+      {% for a in alerts %}
+      <div class="alert-exceeded">
+        <i class="bi bi-exclamation-octagon-fill text-danger"></i>
+        <div>
+          <strong>{{ a.substance }}</strong> — Animal Tag: <strong>{{ a.livestock.tag_id }}</strong>
+          &nbsp;|&nbsp; Detected: <strong>{{ a.detected_val }} µg/kg</strong>
+          &nbsp;|&nbsp; Limit: <strong>{{ a.mrl_limit }} µg/kg</strong>
+          &nbsp;|&nbsp; <small>{{ a.sample_date }}</small>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- ── Stat Cards ────────────────────────────────────────── -->
+  <div class="row g-3 mb-4 animate-stagger">
+    <div class="col-xl-3 col-md-6">
+      <div class="stat-card green">
+        <div class="stat-icon" style="background:#dcfce7;color:var(--green-primary);">🐄</div>
+        <div>
+          <div class="stat-number">{{ total_livestock }}</div>
+          <div class="stat-label">Total Livestock</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+      <div class="stat-card blue">
+        <div class="stat-icon" style="background:#dbeafe;color:var(--blue-info);">💊</div>
+        <div>
+          <div class="stat-number">{{ total_amu }}</div>
+          <div class="stat-label">AMU Records</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+      <div class="stat-card orange">
+        <div class="stat-icon" style="background:#fef9c3;color:var(--orange-warn);">⚠️</div>
+        <div>
+          <div class="stat-number">{{ warning_mrl }}</div>
+          <div class="stat-label">MRL Warnings</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+      <div class="stat-card red">
+        <div class="stat-icon" style="background:#fee2e2;color:var(--red-alert);">🚨</div>
+        <div>
+          <div class="stat-number">{{ exceeded_mrl }}</div>
+          <div class="stat-label">MRL Exceeded</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Charts Row ────────────────────────────────────────── -->
+  <div class="row g-4 mb-4">
+    <div class="col-lg-6">
+      <div class="farm-card h-100">
+        <div class="card-header-farm"><i class="bi bi-pie-chart-fill"></i> MRL Status Distribution</div>
+        <div class="card-body-farm" style="height:300px;display:flex;align-items:center;justify-content:center;">
+          <canvas id="mrlChart"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="farm-card h-100">
+        <div class="card-header-farm"><i class="bi bi-bar-chart-fill"></i> Livestock by Animal Type</div>
+        <div class="card-body-farm" style="height:300px;display:flex;align-items:center;justify-content:center;">
+          <canvas id="animalChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Quick Summary Cards ───────────────────────────────── -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-4">
+      <div class="farm-card text-center p-4">
+        <div style="font-size:2.5rem;">✅</div>
+        <div class="stat-number text-success mt-2">{{ safe_mrl }}</div>
+        <div class="stat-label">MRL Safe</div>
+        <div style="height:8px;background:#e5e7eb;border-radius:50px;margin-top:.75rem;">
+          <div style="height:100%;border-radius:50px;background:var(--green-primary);width:{{ ((safe_mrl / total_mrl * 100) | int) if total_mrl > 0 else 0 }}%;"></div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="farm-card text-center p-4">
+        <div style="font-size:2.5rem;">⚠️</div>
+        <div class="stat-number" style="color:var(--orange-warn);" class="mt-2">{{ warning_mrl }}</div>
+        <div class="stat-label">MRL Warning</div>
+        <div style="height:8px;background:#e5e7eb;border-radius:50px;margin-top:.75rem;">
+          <div style="height:100%;border-radius:50px;background:var(--orange-warn);width:{{ ((warning_mrl / total_mrl * 100) | int) if total_mrl > 0 else 0 }}%;"></div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="farm-card text-center p-4">
+        <div style="font-size:2.5rem;">🚨</div>
+        <div class="stat-number text-danger mt-2">{{ exceeded_mrl }}</div>
+        <div class="stat-label">MRL Exceeded</div>
+        <div style="height:8px;background:#e5e7eb;border-radius:50px;margin-top:.75rem;">
+          <div style="height:100%;border-radius:50px;background:var(--red-alert);width:{{ ((exceeded_mrl / total_mrl * 100) | int) if total_mrl > 0 else 0 }}%;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Quick Actions ─────────────────────────────────────── -->
+  <div class="farm-card">
+    <div class="card-header-farm"><i class="bi bi-lightning-fill"></i> Quick Actions</div>
+    <div class="card-body-farm">
+      <div class="d-flex flex-wrap gap-3">
+        <a href="{{ url_for('add_livestock') }}" class="btn-farm">
+          <i class="bi bi-plus-circle"></i> Add Livestock
+        </a>
+        <a href="{{ url_for('add_mrl') }}" class="btn-farm" style="background:linear-gradient(135deg,#1565c0,#1976d2);">
+          <i class="bi bi-plus-circle"></i> Add MRL Record
+        </a>
+        <a href="{{ url_for('add_amu') }}" class="btn-farm" style="background:linear-gradient(135deg,#e65100,#fb8c00);">
+          <i class="bi bi-plus-circle"></i> Add AMU Record
+        </a>
+        <a href="{{ url_for('reports') }}" class="btn-farm-outline">
+          <i class="bi bi-file-earmark-bar-graph"></i> View Reports
+        </a>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const greenPalette = ['#2d7a4f','#fb8c00','#e53935','#1976d2','#9c27b0','#00897b'];
+
+  // MRL Donut Chart
+  fetch('/api/chart/mrl_status')
+    .then(r => r.json())
+    .then(data => {
+      const colors = data.labels.map(l =>
+        l === 'Safe' ? '#2d7a4f' : l === 'Warning' ? '#fb8c00' : '#e53935'
+      );
+      new Chart(document.getElementById('mrlChart'), {
+        type: 'doughnut',
+        data: { labels: data.labels, datasets: [{ data: data.values, backgroundColor: colors, borderWidth: 3, borderColor: '#fff' }] },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { position: 'bottom', labels: { padding: 15, font: { size: 13 } } } },
+          cutout: '65%'
+        }
+      });
+    });
+
+  // Animal Bar Chart
+  fetch('/api/chart/animal_types')
+    .then(r => r.json())
+    .then(data => {
+      new Chart(document.getElementById('animalChart'), {
+        type: 'bar',
+        data: {
+          labels: data.labels,
+          datasets: [{ label: 'Count', data: data.values,
+            backgroundColor: greenPalette.slice(0, data.labels.length),
+            borderRadius: 8, borderSkipped: false }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: '#f0f7f3' } },
+            x: { grid: { display: false } }
+          }
+        }
+      });
+    });
+});
+</script>
+{% endblock %}

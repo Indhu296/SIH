@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% block title %}About — FarmPortal{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="container">
+    <h1><i class="bi bi-info-circle me-2"></i>About FarmPortal</h1>
+    <p>Digital Farm Management Portal — Smart India Hackathon 2024 Project</p>
+  </div>
+</div>
+
+<div class="container pb-5">
+
+  <!-- Mission -->
+  <div class="row g-4 mb-5">
+    <div class="col-lg-6 fade-in">
+      <h2 class="section-title">Our Mission</h2>
+      <p class="section-subtitle"></p>
+      <p class="mt-4" style="color:var(--text-muted);line-height:1.8;">
+        The Digital Farm Management Portal is a comprehensive web application designed to
+        help farmers, veterinarians, and regulatory bodies monitor <strong>Maximum Residue
+        Limits (MRL)</strong> and <strong>Antimicrobial Usage (AMU)</strong> in livestock.
+      </p>
+      <p style="color:var(--text-muted);line-height:1.8;">
+        Developed as part of the <strong>Smart India Hackathon 2024</strong> initiative, this
+        platform aims to ensure food safety, reduce antimicrobial resistance, and bring
+        digital transformation to Indian agriculture.
+      </p>
+    </div>
+    <div class="col-lg-6">
+      <div class="row g-3 h-100 animate-stagger">
+        {% for item in [
+          ('🎯','Goal','Ensure food safety by monitoring antibiotic residues in livestock products across India.'),
+          ('🌿','Sustainability','Promote responsible antimicrobial use to combat rising AMR threats.'),
+          ('📊','Data-Driven','Empower farmers and vets with real-time data analytics and insights.'),
+          ('🔐','Secure','Role-based access ensures only authorised personnel handle sensitive records.')
+        ] %}
+        <div class="col-6">
+          <div class="farm-card p-3 h-100">
+            <div style="font-size:1.75rem;margin-bottom:.5rem;">{{ item[0] }}</div>
+            <h6 style="font-weight:700;color:var(--green-dark);">{{ item[1] }}</h6>
+            <p style="font-size:.83rem;color:var(--text-muted);margin:0;line-height:1.6;">{{ item[2] }}</p>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Tech Stack -->
+  <div class="farm-card mb-5">
+    <div class="card-header-farm"><i class="bi bi-code-slash"></i> Technology Stack</div>
+    <div class="card-body-farm">
+      <div class="row g-3 text-center animate-stagger">
+        {% for tech in [
+          ('🐍','Python Flask','Backend web framework','#f0fff4'),
+          ('🗄️','SQLite','Lightweight database','#f0f9ff'),
+          ('🎨','Bootstrap 5','Responsive UI','#fdf4ff'),
+          ('📊','Chart.js','Data visualisation','#fff7ed'),
+          ('⚡','JavaScript','Dynamic interactions','#fffbeb'),
+          ('🌿','HTML5 / CSS3','Modern markup & styles','#f0fdf4')
+        ] %}
+        <div class="col-lg-2 col-md-4 col-6">
+          <div style="background:{{ tech[3] }};border-radius:var(--radius-sm);padding:1.5rem 1rem;border:1px solid var(--border-light);">
+            <div style="font-size:2rem;">{{ tech[0] }}</div>
+            <div style="font-weight:700;font-size:.9rem;color:var(--green-dark);margin:.4rem 0 .2rem;">{{ tech[1] }}</div>
+            <div style="font-size:.78rem;color:var(--text-muted);">{{ tech[2] }}</div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Key Features -->
+  <div class="row g-4 mb-5">
+    <div class="col-12">
+      <h2 class="section-title">Key Features</h2>
+    </div>
+    {% for feat in [
+      ('bi-flower2','Livestock Management','Complete CRUD operations for livestock with health status tracking, breed, weight, and geolocation.'),
+      ('bi-activity','MRL Monitoring','Automated status computation (Safe / Warning / Exceeded) with visual progress bars and alert banners.'),
+      ('bi-capsule','AMU Tracking','Log every antimicrobial treatment with drug class, dosage, route, and mandatory withdrawal period tracking.'),
+      ('bi-speedometer2','Real-time Dashboard','Live statistics with interactive Chart.js doughnut and bar charts for instant farm health overview.'),
+      ('bi-bell-fill','Smart Alerts','Immediate notifications whenever a test result exceeds the permissible MRL limit.'),
+      ('bi-file-earmark-bar-graph','Reports & Analytics','Stacked bar charts, pie charts, and exportable tables for regulatory and audit purposes.')
+    ] %}
+    <div class="col-md-4">
+      <div class="d-flex gap-3 align-items-start">
+        <div style="width:44px;height:44px;background:var(--green-pale);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <i class="bi {{ feat[0] }}" style="color:var(--green-primary);font-size:1.2rem;"></i>
+        </div>
+        <div>
+          <h6 style="font-weight:700;color:var(--green-dark);margin-bottom:.3rem;">{{ feat[1] }}</h6>
+          <p style="font-size:.85rem;color:var(--text-muted);margin:0;line-height:1.6;">{{ feat[2] }}</p>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Team -->
+  <div class="farm-card">
+    <div class="card-header-farm"><i class="bi bi-people-fill"></i> Project Team</div>
+    <div class="card-body-farm">
+      <div class="row g-4 text-center animate-stagger">
+        {% for member in [
+          ('👨‍💻','Project Lead','Full-Stack Developer'),
+          ('👩‍🔬','Domain Expert','Agriculture Scientist'),
+          ('👨‍🎨','UI/UX Designer','Frontend Engineer'),
+          ('👩‍💼','Research Lead','Data Analyst')
+        ] %}
+        <div class="col-md-3 col-sm-6">
+          <div style="background:var(--green-pale);border-radius:var(--radius);padding:1.5rem 1rem;border:1px solid var(--border-light);">
+            <div style="font-size:2.5rem;">{{ member[0] }}</div>
+            <div style="font-weight:700;color:var(--green-dark);margin:.5rem 0 .2rem;">{{ member[1] }}</div>
+            <div style="font-size:.82rem;color:var(--text-muted);">{{ member[2] }}</div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

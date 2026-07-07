@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+{% block title %}AMU Tracking — FarmPortal{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="container">
+    <h1><i class="bi bi-capsule me-2"></i>AMU Tracking</h1>
+    <p>Track Antimicrobial Usage — prescriptions, dosages, and withdrawal periods.</p>
+  </div>
+</div>
+
+<div class="container pb-5">
+  <!-- Toolbar -->
+  <div class="farm-card mb-4">
+    <div class="card-body-farm">
+      <form method="GET" class="row g-3 align-items-end">
+        <div class="col-md-5">
+          <label class="form-label-farm">Search</label>
+          <div class="search-bar">
+            <i class="bi bi-search search-icon"></i>
+            <input type="text" name="search" class="form-control-farm" placeholder="Search by tag, drug name, or vet…" value="{{ search }}"/>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label-farm">Route Filter</label>
+          <select name="route" class="form-control-farm">
+            <option value="">All Routes</option>
+            {% for rt in ['Oral','Injection','Topical','Intramammary','Other'] %}
+            <option value="{{ rt }}" {{ 'selected' if route_filter == rt }}>{{ rt }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-2">
+          <button type="submit" class="btn-farm w-100" style="justify-content:center;">
+            <i class="bi bi-funnel"></i> Filter
+          </button>
+        </div>
+        <div class="col-md-2">
+          <a href="{{ url_for('add_amu') }}" class="btn-farm w-100" style="justify-content:center;background:linear-gradient(135deg,#e65100,#fb8c00);">
+            <i class="bi bi-plus-lg"></i> Add Record
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="farm-card">
+    <div class="card-header-farm">
+      <i class="bi bi-capsule-pill"></i> Antimicrobial Usage Records
+      <span class="ms-auto" style="font-size:.82rem;opacity:.8;">{{ records|length }} record(s)</span>
+    </div>
+    <div class="card-body-farm p-0">
+      {% if records %}
+      <div class="table-responsive">
+        <table class="farm-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Tag ID</th>
+              <th>Drug Name</th>
+              <th>Class</th>
+              <th>Dosage (mg)</th>
+              <th>Route</th>
+              <th>Start Date</th>
+              <th>End Date</th>
+              <th>Withdrawal</th>
+              <th>Prescribed By</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in records %}
+            {% set is_active = r.end_date >= today %}
+            <tr>
+              <td>{{ loop.index }}</td>
+              <td><span style="font-family:monospace;font-weight:700;">{{ r.livestock.tag_id }}</span></td>
+              <td><strong>{{ r.drug_name }}</strong></td>
+              <td><span style="font-size:.8rem;background:#e8f5ee;color:var(--green-dark);padding:.2rem .5rem;border-radius:4px;">{{ r.drug_class }}</span></td>
+              <td>{{ r.dosage_mg }}</td>
+              <td>
+                <span style="font-size:.8rem;background:#dbeafe;color:#1d4ed8;padding:.2rem .5rem;border-radius:4px;">
+                  {{ r.route }}
+                </span>
+              </td>
+              <td>{{ r.start_date }}</td>
+              <td>{{ r.end_date }}</td>
+              <td>
+                <span class="{{ 'withdrawal-active' if is_active else 'withdrawal-complete' }}">
+                  {{ r.withdrawal_days }} days
+                  {% if is_active %}<i class="bi bi-clock-fill ms-1"></i>{% else %}<i class="bi bi-check-circle-fill ms-1"></i>{% endif %}
+                </span>
+              </td>
+              <td>{{ r.prescribed_by }}</td>
+              <td>
+                <span class="badge {{ 'badge-exceeded' if is_active else 'badge-safe' }}" style="padding:.3rem .65rem;border-radius:6px;font-size:.78rem;">
+                  {{ '💊 Active' if is_active else '✅ Completed' }}
+                </span>
+              </td>
+              <td>
+                <div class="d-flex gap-1">
+                  <a href="{{ url_for('edit_amu', id=r.id) }}" class="btn-sm-icon btn-edit" title="Edit"><i class="bi bi-pencil"></i></a>
+                  <form method="POST" action="{{ url_for('delete_amu', id=r.id) }}" onsubmit="return confirm('Delete this AMU record?');" style="display:inline;">
+                    <button type="submit" class="btn-sm-icon btn-delete" title="Delete"><i class="bi bi-trash"></i></button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="text-center py-5" style="color:var(--text-muted);">
+        <i class="bi bi-capsule" style="font-size:3rem;opacity:.3;"></i>
+        <p class="mt-3">No AMU records found.<br><a href="{{ url_for('add_amu') }}" class="text-green">Add first AMU record</a></p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% block title %}{{ action }} Livestock — FarmPortal{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="container">
+    <h1><i class="bi bi-{{ 'plus-circle' if action == 'Add' else 'pencil-square' }} me-2"></i>{{ action }} Livestock Record</h1>
+    <p>{{ 'Register a new animal on your farm.' if action == 'Add' else 'Update the livestock details below.' }}</p>
+  </div>
+</div>
+
+<div class="container pb-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="farm-card">
+        <div class="card-header-farm">
+          <i class="bi bi-flower2"></i> {{ action }} Livestock Details
+        </div>
+        <div class="card-body-farm">
+          <form method="POST">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label-farm">Tag ID *</label>
+                <input type="text" name="tag_id" class="form-control-farm" required placeholder="e.g. LV-009"
+                       value="{{ record.tag_id if record else '' }}"/>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label-farm">Animal Type *</label>
+                <select name="animal_type" class="form-control-farm" required>
+                  {% for t in ['Cattle','Poultry','Pig','Sheep','Goat','Buffalo','Horse','Other'] %}
+                  <option value="{{ t }}" {{ 'selected' if record and record.animal_type == t }}>{{ t }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label-farm">Breed *</label>
+                <input type="text" name="breed" class="form-control-farm" required placeholder="e.g. Holstein Friesian"
+                       value="{{ record.breed if record else '' }}"/>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label-farm">Age (Months) *</label>
+                <input type="number" name="age_months" class="form-control-farm" required min="1" placeholder="e.g. 24"
+                       value="{{ record.age_months if record else '' }}"/>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label-farm">Weight (kg) *</label>
+                <input type="number" name="weight_kg" class="form-control-farm" required step="0.1" min="0.1" placeholder="e.g. 450.0"
+                       value="{{ record.weight_kg if record else '' }}"/>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label-farm">Farmer Name *</label>
+                <input type="text" name="farmer_name" class="form-control-farm" required placeholder="Full name of farmer"
+                       value="{{ record.farmer_name if record else '' }}"/>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label-farm">Health Status *</label>
+                <select name="health_status" class="form-control-farm" required>
+                  {% for s in ['Healthy','Under Treatment','Quarantined','Deceased'] %}
+                  <option value="{{ s }}" {{ 'selected' if record and record.health_status == s }}>{{ s }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="col-12">
+                <label class="form-label-farm">Farm Location *</label>
+                <input type="text" name="farm_location" class="form-control-farm" required placeholder="Village, District, State"
+                       value="{{ record.farm_location if record else '' }}"/>
+              </div>
+            </div>
+            <div class="d-flex gap-3 mt-4">
+              <button type="submit" class="btn-farm">
+                <i class="bi bi-check-lg"></i> {{ action }} Record
+              </button>
+              <a href="{{ url_for('livestock') }}" class="btn-farm-outline">
+                <i class="bi bi-x-lg"></i> Cancel
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

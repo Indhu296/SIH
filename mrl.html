@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% block title %}MRL Monitoring — FarmPortal{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="container">
+    <h1><i class="bi bi-activity me-2"></i>MRL Monitoring</h1>
+    <p>Track Maximum Residue Limits for antibiotic substances in livestock products.</p>
+  </div>
+</div>
+
+<div class="container pb-5">
+  <!-- Toolbar -->
+  <div class="farm-card mb-4">
+    <div class="card-body-farm">
+      <form method="GET" class="row g-3 align-items-end">
+        <div class="col-md-5">
+          <label class="form-label-farm">Search</label>
+          <div class="search-bar">
+            <i class="bi bi-search search-icon"></i>
+            <input type="text" name="search" class="form-control-farm" placeholder="Search by tag ID or substance…" value="{{ search }}"/>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label-farm">Status Filter</label>
+          <select name="status" class="form-control-farm">
+            <option value="">All Status</option>
+            <option value="Safe"     {{ 'selected' if status_filter == 'Safe' }}>✅ Safe</option>
+            <option value="Warning"  {{ 'selected' if status_filter == 'Warning' }}>⚠️ Warning</option>
+            <option value="Exceeded" {{ 'selected' if status_filter == 'Exceeded' }}>🚨 Exceeded</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <button type="submit" class="btn-farm w-100" style="justify-content:center;">
+            <i class="bi bi-funnel"></i> Filter
+          </button>
+        </div>
+        <div class="col-md-2">
+          <a href="{{ url_for('add_mrl') }}" class="btn-farm w-100" style="justify-content:center;background:linear-gradient(135deg,#1565c0,#1976d2);">
+            <i class="bi bi-plus-lg"></i> Add Record
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="farm-card">
+    <div class="card-header-farm">
+      <i class="bi bi-clipboard2-pulse"></i> MRL Records
+      <span class="ms-auto" style="font-size:.82rem;opacity:.8;">{{ records|length }} record(s)</span>
+    </div>
+    <div class="card-body-farm p-0">
+      {% if records %}
+      <div class="table-responsive">
+        <table class="farm-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Tag ID</th>
+              <th>Animal</th>
+              <th>Substance</th>
+              <th>Detected (µg/kg)</th>
+              <th>MRL Limit (µg/kg)</th>
+              <th>Ratio</th>
+              <th>Status</th>
+              <th>Sample Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in records %}
+            {% set ratio = (r.detected_val / r.mrl_limit * 100) | int if r.mrl_limit > 0 else 0 %}
+            <tr>
+              <td>{{ loop.index }}</td>
+              <td><span style="font-family:monospace;font-weight:700;">{{ r.livestock.tag_id }}</span></td>
+              <td>{{ r.livestock.animal_type }}</td>
+              <td><strong>{{ r.substance }}</strong></td>
+              <td>{{ r.detected_val }}</td>
+              <td>{{ r.mrl_limit }}</td>
+              <td>
+                <div class="mrl-bar-wrap">
+                  <div class="mrl-bar">
+                    <div class="mrl-bar-fill {{ r.status | lower }}"
+                         style="width:{{ [ratio, 100]|min }}%;"></div>
+                  </div>
+                  <small style="white-space:nowrap;font-size:.78rem;">{{ ratio }}%</small>
+                </div>
+              </td>
+              <td>
+                <span class="badge {{ 'badge-safe' if r.status == 'Safe' else 'badge-warning' if r.status == 'Warning' else 'badge-exceeded' }}"
+                      style="padding:.3rem .75rem;border-radius:6px;font-size:.8rem;">
+                  {% if r.status == 'Safe' %}✅{% elif r.status == 'Warning' %}⚠️{% else %}🚨{% endif %}
+                  {{ r.status }}
+                </span>
+              </td>
+              <td>{{ r.sample_date }}</td>
+              <td>
+                <div class="d-flex gap-1">
+                  <a href="{{ url_for('edit_mrl', id=r.id) }}" class="btn-sm-icon btn-edit" title="Edit"><i class="bi bi-pencil"></i></a>
+                  <form method="POST" action="{{ url_for('delete_mrl', id=r.id) }}" onsubmit="return confirm('Delete this MRL record?');" style="display:inline;">
+                    <button type="submit" class="btn-sm-icon btn-delete" title="Delete"><i class="bi bi-trash"></i></button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="text-center py-5" style="color:var(--text-muted);">
+        <i class="bi bi-activity" style="font-size:3rem;opacity:.3;"></i>
+        <p class="mt-3">No MRL records found.<br><a href="{{ url_for('add_mrl') }}" class="text-green">Add first MRL record</a></p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Legend -->
+  <div class="d-flex flex-wrap gap-3 mt-3">
+    <span class="badge badge-safe" style="padding:.4rem .9rem;border-radius:8px;">✅ Safe — Detected ≤70% of limit</span>
+    <span class="badge badge-warning" style="padding:.4rem .9rem;border-radius:8px;">⚠️ Warning — 70%–100% of limit</span>
+    <span class="badge badge-exceeded" style="padding:.4rem .9rem;border-radius:8px;">🚨 Exceeded — Above limit</span>
+  </div>
+</div>
+{% endblock %}

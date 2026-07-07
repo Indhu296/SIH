@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% block title %}{{ action }} AMU Record — FarmPortal{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="container">
+    <h1><i class="bi bi-capsule me-2"></i>{{ action }} AMU Record</h1>
+    <p>{{ 'Record a new antimicrobial treatment.' if action == 'Add' else 'Update the treatment details below.' }}</p>
+  </div>
+</div>
+
+<div class="container pb-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-9">
+      <div class="farm-card">
+        <div class="card-header-farm"><i class="bi bi-capsule-pill"></i> Antimicrobial Usage Details</div>
+        <div class="card-body-farm">
+          <form method="POST">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label-farm">Select Livestock *</label>
+                <select name="livestock_id" class="form-control-farm" required>
+                  <option value="">-- Select Animal --</option>
+                  {% for l in livestock_list %}
+                  <option value="{{ l.id }}" {{ 'selected' if record and record.livestock_id == l.id }}>
+                    {{ l.tag_id }} — {{ l.animal_type }} ({{ l.breed }})
+                  </option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label-farm">Drug Name *</label>
+                <input type="text" name="drug_name" class="form-control-farm" required
+                       placeholder="e.g. Amoxicillin"
+                       value="{{ record.drug_name if record else '' }}"/>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label-farm">Drug Class *</label>
+                <select name="drug_class" class="form-control-farm" required>
+                  {% for c in ['Penicillins','Tetracyclines','Fluoroquinolones','Macrolides','Sulfonamides','Aminoglycosides','Amphenicols','Cephalosporins','Other'] %}
+                  <option value="{{ c }}" {{ 'selected' if record and record.drug_class == c }}>{{ c }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label-farm">Dosage (mg) *</label>
+                <input type="number" name="dosage_mg" class="form-control-farm" required step="0.1" min="0.1"
+                       placeholder="e.g. 250.0"
+                       value="{{ record.dosage_mg if record else '' }}"/>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label-farm">Route *</label>
+                <select name="route" class="form-control-farm" required>
+                  {% for rt in ['Oral','Injection','Topical','Intramammary','Other'] %}
+                  <option value="{{ rt }}" {{ 'selected' if record and record.route == rt }}>{{ rt }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label-farm">Start Date *</label>
+                <input type="date" name="start_date" class="form-control-farm" required
+                       value="{{ record.start_date if record else '' }}"/>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label-farm">End Date *</label>
+                <input type="date" name="end_date" class="form-control-farm" required
+                       value="{{ record.end_date if record else '' }}"/>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label-farm">Withdrawal Period (days) *</label>
+                <input type="number" name="withdrawal_days" class="form-control-farm" required min="0"
+                       placeholder="e.g. 14"
+                       value="{{ record.withdrawal_days if record else '' }}"/>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label-farm">Prescribed By *</label>
+                <input type="text" name="prescribed_by" class="form-control-farm" required
+                       placeholder="Veterinarian name"
+                       value="{{ record.prescribed_by if record else '' }}"/>
+              </div>
+              <div class="col-12">
+                <label class="form-label-farm">Reason / Diagnosis (optional)</label>
+                <textarea name="reason" class="form-control-farm" rows="3"
+                          placeholder="Why was this antimicrobial prescribed?">{{ record.reason if record else '' }}</textarea>
+              </div>
+            </div>
+            <div class="d-flex gap-3 mt-4">
+              <button type="submit" class="btn-farm">
+                <i class="bi bi-check-lg"></i> {{ action }} Record
+              </button>
+              <a href="{{ url_for('amu') }}" class="btn-farm-outline">
+                <i class="bi bi-x-lg"></i> Cancel
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

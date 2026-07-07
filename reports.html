@@ -1,0 +1,194 @@
+{% extends 'base.html' %}
+{% block title %}Reports — FarmPortal{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="container">
+    <h1><i class="bi bi-bar-chart-line me-2"></i>Reports & Analytics</h1>
+    <p>Comprehensive farm compliance reports and visualisations.</p>
+  </div>
+</div>
+
+<div class="container pb-5">
+
+  <!-- Charts Row -->
+  <div class="row g-4 mb-4">
+    <!-- MRL Pie -->
+    <div class="col-lg-4">
+      <div class="farm-card h-100">
+        <div class="card-header-farm"><i class="bi bi-pie-chart-fill"></i> MRL Status Summary</div>
+        <div class="card-body-farm" style="height:280px;display:flex;align-items:center;justify-content:center;">
+          <canvas id="mrlPie"></canvas>
+        </div>
+      </div>
+    </div>
+    <!-- Drug Class Bar -->
+    <div class="col-lg-4">
+      <div class="farm-card h-100">
+        <div class="card-header-farm"><i class="bi bi-bar-chart-fill"></i> AMU by Drug Class</div>
+        <div class="card-body-farm" style="height:280px;display:flex;align-items:center;justify-content:center;">
+          <canvas id="drugBar"></canvas>
+        </div>
+      </div>
+    </div>
+    <!-- Animal MRL Stacked -->
+    <div class="col-lg-4">
+      <div class="farm-card h-100">
+        <div class="card-header-farm"><i class="bi bi-graph-up"></i> MRL by Animal Type</div>
+        <div class="card-body-farm" style="height:280px;display:flex;align-items:center;justify-content:center;">
+          <canvas id="animalMrl"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MRL Summary Table -->
+  <div class="row g-4 mb-4">
+    <div class="col-md-5">
+      <div class="farm-card h-100">
+        <div class="card-header-farm"><i class="bi bi-list-check"></i> MRL Status Counts</div>
+        <div class="card-body-farm">
+          <table class="farm-table">
+            <thead><tr><th>Status</th><th>Count</th><th>Share</th></tr></thead>
+            <tbody>
+              {% set total_mrl = mrl_summary | sum(attribute=1) %}
+              {% for status, count in mrl_summary %}
+              <tr>
+                <td>
+                  <span class="badge {{ 'badge-safe' if status == 'Safe' else 'badge-warning' if status == 'Warning' else 'badge-exceeded' }}"
+                        style="padding:.3rem .7rem;border-radius:6px;">
+                    {{ status }}
+                  </span>
+                </td>
+                <td><strong>{{ count }}</strong></td>
+                <td>
+                  <div class="mrl-bar-wrap">
+                    <div class="mrl-bar">
+                      <div class="mrl-bar-fill {{ status | lower }}"
+                           style="width:{{ ((count / total_mrl * 100) | int) if total_mrl > 0 else 0 }}%;"></div>
+                    </div>
+                    <small>{{ ((count / total_mrl * 100) | int) if total_mrl > 0 else 0 }}%</small>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Drug Usage Table -->
+    <div class="col-md-7">
+      <div class="farm-card h-100">
+        <div class="card-header-farm"><i class="bi bi-capsule-pill"></i> AMU by Drug Class</div>
+        <div class="card-body-farm">
+          <table class="farm-table">
+            <thead><tr><th>Drug Class</th><th>Usage Count</th></tr></thead>
+            <tbody>
+              {% for cls, cnt in drug_usage %}
+              <tr>
+                <td>{{ cls }}</td>
+                <td>
+                  <span style="background:#e8f5ee;color:var(--green-dark);padding:.2rem .65rem;border-radius:6px;font-weight:700;">{{ cnt }}</span>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Exceeded MRL -->
+  {% if recent_exceeded %}
+  <div class="farm-card">
+    <div class="card-header-farm" style="background:linear-gradient(135deg,#b71c1c,#e53935);">
+      <i class="bi bi-exclamation-triangle-fill"></i> Recent MRL Exceeded Records
+    </div>
+    <div class="card-body-farm p-0">
+      <div class="table-responsive">
+        <table class="farm-table">
+          <thead>
+            <tr><th>Tag ID</th><th>Substance</th><th>Detected</th><th>Limit</th><th>Excess %</th><th>Date</th><th>Notes</th></tr>
+          </thead>
+          <tbody>
+            {% for r in recent_exceeded %}
+            {% set excess = ((r.detected_val - r.mrl_limit) / r.mrl_limit * 100) | round(1) %}
+            <tr>
+              <td><strong>{{ r.livestock.tag_id }}</strong></td>
+              <td>{{ r.substance }}</td>
+              <td class="text-danger fw-bold">{{ r.detected_val }} µg/kg</td>
+              <td>{{ r.mrl_limit }} µg/kg</td>
+              <td><span class="badge badge-exceeded" style="padding:.3rem .65rem;border-radius:6px;">+{{ excess }}%</span></td>
+              <td>{{ r.sample_date }}</td>
+              <td style="font-size:.82rem;color:var(--text-muted);">{{ r.notes or '—' }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // MRL Pie
+  const mrlData = {{ mrl_summary | tojson }};
+  const mrlLabels = mrlData.map(r => r[0]);
+  const mrlVals   = mrlData.map(r => r[1]);
+  const mrlColors = mrlLabels.map(l => l === 'Safe' ? '#2d7a4f' : l === 'Warning' ? '#fb8c00' : '#e53935');
+  new Chart(document.getElementById('mrlPie'), {
+    type: 'pie',
+    data: { labels: mrlLabels, datasets: [{ data: mrlVals, backgroundColor: mrlColors, borderWidth: 3, borderColor: '#fff' }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+  });
+
+  // Drug Bar
+  const drugData = {{ drug_usage | tojson }};
+  const greenShades = ['#1a4731','#2d7a4f','#3a9d6e','#52c78a','#6fcf97','#a8e6c1','#c8f5d9','#e8faf0','#f0fff4'];
+  new Chart(document.getElementById('drugBar'), {
+    type: 'bar',
+    data: {
+      labels: drugData.map(r => r[0]),
+      datasets: [{ label: 'Count', data: drugData.map(r => r[1]),
+        backgroundColor: greenShades.slice(0, drugData.length), borderRadius: 6 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: '#f0f7f3' } }, x: { grid: { display: false } } }
+    }
+  });
+
+  // Stacked animal MRL bar
+  const amd = {{ animal_mrl | tojson }};
+  const animals   = [...new Set(amd.map(r => r[0]))];
+  const statuses  = ['Safe', 'Warning', 'Exceeded'];
+  const colors    = { Safe: '#2d7a4f', Warning: '#fb8c00', Exceeded: '#e53935' };
+  const datasets  = statuses.map(s => ({
+    label: s,
+    data: animals.map(a => {
+      const row = amd.find(r => r[0] === a && r[1] === s);
+      return row ? row[2] : 0;
+    }),
+    backgroundColor: colors[s], borderRadius: 4
+  }));
+  new Chart(document.getElementById('animalMrl'), {
+    type: 'bar',
+    data: { labels: animals, datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom', labels: { padding: 10, font: { size: 11 } } } },
+      scales: { x: { stacked: true, grid: { display: false } }, y: { stacked: true, beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: '#f0f7f3' } } }
+    }
+  });
+});
+</script>
+{% endblock %}

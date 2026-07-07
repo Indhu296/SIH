@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% block title %}Login — FarmPortal{% endblock %}
+
+{% block content %}
+<div class="login-page">
+  <div class="login-card">
+    <!-- Logo -->
+    <div class="login-logo">🌿</div>
+    <h3 class="text-center fw-800 mb-1" style="color:var(--green-dark);font-weight:800;">FarmPortal Login</h3>
+    <p class="text-center text-muted mb-4" style="font-size:.88rem;">Digital Farm Management Portal</p>
+
+    <!-- Demo Credentials Info -->
+    <div style="background:var(--green-pale);border:1px solid var(--border-light);border-radius:var(--radius-sm);padding:.85rem 1rem;margin-bottom:1.5rem;font-size:.83rem;">
+      <div style="font-weight:700;color:var(--green-dark);margin-bottom:.4rem;">
+        <i class="bi bi-info-circle me-1"></i>Demo Credentials
+      </div>
+      <div><b>Admin:</b> admin / admin123</div>
+      <div><b>Farmer:</b> farmer1 / farmer123</div>
+    </div>
+
+    <!-- Login Form -->
+    <form method="POST" action="{{ url_for('login') }}" id="loginForm">
+      <div class="mb-3">
+        <label class="form-label-farm" for="username">
+          <i class="bi bi-person me-1"></i>Username
+        </label>
+        <input type="text" id="username" name="username" class="form-control-farm"
+               placeholder="Enter your username" required autocomplete="username"/>
+      </div>
+      <div class="mb-4">
+        <label class="form-label-farm" for="password">
+          <i class="bi bi-lock me-1"></i>Password
+        </label>
+        <div style="position:relative;">
+          <input type="password" id="password" name="password" class="form-control-farm"
+                 placeholder="Enter your password" required autocomplete="current-password"/>
+          <button type="button" onclick="togglePassword()"
+                  style="position:absolute;right:.75rem;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1rem;">
+            <i class="bi bi-eye" id="eyeIcon"></i>
+          </button>
+        </div>
+      </div>
+      <button type="submit" class="btn-farm w-100" style="justify-content:center;padding:.7rem;">
+        <i class="bi bi-box-arrow-in-right"></i> Login to Portal
+      </button>
+    </form>
+
+    <hr class="my-3"/>
+    <p class="text-center text-muted mb-0" style="font-size:.82rem;">
+      <i class="bi bi-shield-check me-1 text-success"></i>
+      Secured portal — Authorised personnel only
+    </p>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function togglePassword() {
+  const pw  = document.getElementById('password');
+  const eye = document.getElementById('eyeIcon');
+  if (pw.type === 'password') {
+    pw.type = 'text';
+    eye.className = 'bi bi-eye-slash';
+  } else {
+    pw.type = 'password';
+    eye.className = 'bi bi-eye';
+  }
+}
+</script>
+{% endblock %}
